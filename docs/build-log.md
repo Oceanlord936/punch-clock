@@ -42,7 +42,27 @@ private `checkEmployee`, `RuleError` / `NeedSupervisorError`, exports. `time.js`
 `afterPunchOutTime`, `todayStartMs`, `thatDayFixTime`, `dayList`. Smoke-tested on a throwaway DB at 18:32:
 everything passed except a successful punch-in/switch (blocked by the 5:30 rule; retest before 17:30).
 
-**Next time, start here:** `scripts/try-db.js` + `"try-db"` script, then `main.js` handlers.
+**Git (2026-10-10):** repo set up, pushed to github.com/Oceanlord936/punch-clock (`main`). `.gitignore`
+skips `node_modules/`, `out/`, `*.db`.
+
+**Progress estimate (2026-10-10):** backend ≈ 65%, whole build ≈ 40%. UI not started.
+
+**Next time, start here:** `scripts/try-db.js` + `"try-db"` script (retest punch-in/switch before 17:30),
+then `main.js` handlers.
+
+### Concepts learned 2026-10-10
+- `SELECT` = which columns come back; `WHERE` = which rows, can use **any** column (no need to SELECT it).
+- `.get()` = one row or `undefined`; `.all()` = array of rows; `.run()` = info `{ changes, lastInsertRowid }`, not a row.
+- `const { x } = obj` takes property `x` out; `const row = …` keeps the whole thing. Destructuring an array or `undefined` gives `undefined` / crashes.
+- `.map` (transform each, new array), `.filter` (keep matching, new array; must use the result), `.includes` (`===` check).
+- `for…of` = values; `for…in` = indexes (as strings). Always `const` in the loop.
+- Transaction: `BEGIN` → writes → `COMMIT`; on error `ROLLBACK` + rethrow. Only for writes. One `BEGIN` ↔ one `COMMIT`.
+- `UPDATE … WHERE job_number = ?` hits every history row of that job; target the open row (`AND end_ms IS NULL`) or `id`.
+- Error classes: `RuleError` (show to worker) vs anything else (log). `new X(msg, { cause: err })` keeps the real reason.
+- Private in JS = not reachable: inside `createService` and not returned, or not in `module.exports`.
+- `"HH:MM"` / `"YYYY-MM-DD"` strings compare correctly as text (same length, zero-padded).
+- `Date.now` vs `Date.now()`: without `()` it's the function, a silent bug.
+- VS Code checks JS types only with `// @ts-check` or `jsconfig.json` (`checkJs`); `noImplicitAny: false` drops the noise.
 
 **Previous "start here" (done):** write `lib/service.js` (renamed from `punch.js`: it holds all the rules, not just punching; `createService(db)`, db passed in by main.js) from `algorithms.md`, then `scripts/try-db.js`.
 
